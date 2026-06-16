@@ -3,7 +3,7 @@ import { mat, brick, wall, emissivePanel, floorTexture } from './lego.js';
 import { makeMinifig, layDown } from './minifig.js';
 import { makeDevice } from './devices.js';
 import { Crowd } from './crowd.js';
-import { crashCart, ivPole, screen, stool, chair, cabinet, surgicalLight, instrumentTray, plant, toyBox, slidingDoor } from './props.js';
+import { crashCart, ivPole, screen, stool, chair, cabinet, surgicalLight, instrumentTray, plant, toyBox, slidingDoor, gurney, wallMonitor } from './props.js';
 
 const CH = 4;     // altura de techo
 const WT = 0.25;  // grosor de muro
@@ -22,6 +22,7 @@ export function buildHospital(scene, cases) {
   const walls = [];
   const interactables = [];
   const doors = [];
+  const idleFigs = [];
 
   // ---------- helpers de muros + colisión ----------
   function addWall(ax, az, bx, bz, h = CH, color = '#e9eef7') {
@@ -141,7 +142,10 @@ export function buildHospital(scene, cases) {
     } else {
       patient.position.set(cx, 0, cz + 2.5); patient.rotation.y = left ? Math.PI / 2 : -Math.PI / 2;
     }
-    scene.add(patient);
+    scene.add(patient); idleFigs.push(patient);
+
+    // monitor de pared encendido (sobre la pared del fondo de la sala)
+    const wm = wallMonitor(); wm.position.set(cx, 2.3, cz - 4.85); scene.add(wm);
 
     // aparatos de medición LEGO con valores del caso
     (caseObj.devices || []).slice(0, 2).forEach((d, i) => {
@@ -185,6 +189,17 @@ export function buildHospital(scene, cases) {
   ]);
   // personal deambulando por lobby + pasillo
   crowd.spawnStaff(7, { x0: -2.4, x1: 2.4, z0: -47, z1: 4 });
+  // pacientes en cama respiran/parpadean
+  idleFigs.forEach((f) => crowd.addIdle(f));
+
+  // camillas con ruedas estacionadas en el pasillo
+  [[-2.4, -8], [2.4, -22], [-2.4, -34]].forEach(([x, z]) => {
+    const gu = gurney(); gu.position.set(x, 0, z); gu.rotation.y = Math.PI / 2; scene.add(gu);
+  });
+  // monitores de pared encendidos en el pasillo (sin tapar puertas)
+  [-6, -32, -46].forEach((z) => {
+    const wm = wallMonitor(); wm.position.set(-2.86, 2.4, z); wm.rotation.y = Math.PI / 2; scene.add(wm);
+  });
 
   return {
     interactables, walls, doors,

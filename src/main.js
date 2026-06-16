@@ -6,6 +6,7 @@ import { showLogin } from './ui/login.js';
 import { mountHud } from './ui/hud.js';
 import { openCase } from './ui/casePanel.js';
 import { openEditor } from './ui/editor.js';
+import { showLanding } from './ui/landing.js';
 import { toast } from './ui/toast.js';
 
 let world = null;
@@ -57,4 +58,5 @@ async function startApp(profile) {
 // si la sesión cambia (logout en otra pestaña, etc.)
 onAuthChange((session) => { if (!session) {/* el reload de logout ya gestiona */} });
 
-boot();
+// primero la landing; al "Ingresar" arranca el flujo (login o app)
+showLanding(boot);

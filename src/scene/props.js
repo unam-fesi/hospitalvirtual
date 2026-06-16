@@ -105,6 +105,44 @@ export function toyBox() {
   return g;
 }
 
+// Camilla con ruedas (gurney) para el pasillo.
+export function gurney() {
+  const g = new THREE.Group();
+  const frame = brick(2.2, 0.1, 0.9, '#aab6cc'); frame.position.y = 0.75; g.add(frame);
+  const mattress = brick(2.0, 0.16, 0.8, '#e6ecf7'); mattress.position.y = 0.86; g.add(mattress);
+  const pillow = brick(0.5, 0.12, 0.6, '#ffffff'); pillow.position.set(0.75, 0.98, 0); g.add(pillow);
+  [[-0.95, -0.35], [0.95, -0.35], [-0.95, 0.35], [0.95, 0.35]].forEach(([x, z]) => {
+    const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.6, 8), mat('#9aa6c2')); leg.position.set(x, 0.4, z); g.add(leg);
+    const w = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.07, 12), mat('#1b1f2a')); w.rotation.z = Math.PI / 2; w.position.set(x, 0.1, z); g.add(w);
+  });
+  const rail = brick(2.0, 0.05, 0.05, '#c2cbe0'); rail.position.set(0, 1.05, 0.42); g.add(rail);
+  return g;
+}
+
+// Monitor de pared encendido (con trazo de ECG).
+export function wallMonitor() {
+  const g = new THREE.Group();
+  const frame = brick(1.3, 0.85, 0.08, '#10182c'); frame.position.z = 0; g.add(frame);
+  const c = document.createElement('canvas'); c.width = 256; c.height = 160;
+  const x = c.getContext('2d');
+  x.fillStyle = '#04121a'; x.fillRect(0, 0, 256, 160);
+  x.strokeStyle = '#1dd3a7'; x.lineWidth = 2; x.beginPath();
+  let px = 0; const mid = 78;
+  for (let i = 0; i < 256; i += 2) {
+    let y = mid;
+    const m = i % 64;
+    if (m === 20) y = mid - 6; else if (m === 24) y = mid - 46; else if (m === 28) y = mid + 24; else if (m === 32) y = mid - 4;
+    x.lineTo(i, y); px = i;
+  }
+  x.stroke();
+  x.fillStyle = '#1dd3a7'; x.font = 'bold 20px monospace'; x.fillText('FC 78', 10, 130); x.fillText('SpO2 98', 120, 130);
+  const tex = new THREE.CanvasTexture(c);
+  const scr = new THREE.Mesh(new THREE.PlaneGeometry(1.15, 0.7),
+    new THREE.MeshStandardMaterial({ map: tex, emissive: '#1dd3a7', emissiveMap: tex, emissiveIntensity: 0.9 }));
+  scr.position.z = 0.05; g.add(scr);
+  return g;
+}
+
 // Puerta corredera automática (dos hojas de vidrio).
 export function slidingDoor(x, cz, height = 2.6) {
   const g = new THREE.Group();

@@ -1,13 +1,16 @@
 import * as THREE from 'three';
-import { makeMinifig, animateWalk, sit } from './minifig.js';
+import { makeMinifig, animateWalk, sit, animateIdle } from './minifig.js';
 
-// Gestiona personal que deambula y pacientes sentados en salas de espera.
+// Gestiona personal que deambula, pacientes sentados y figuras "vivas".
 export class Crowd {
   constructor(scene) {
     this.scene = scene;
     this.agents = [];     // personal que camina
-    this.seated = [];     // pacientes sentados (estáticos)
+    this.seated = [];     // pacientes sentados
+    this.idle = [];       // figuras quietas que respiran/parpadean (p. ej. pacientes en cama)
   }
+
+  addIdle(fig) { this.idle.push(fig); }
 
   spawnStaff(n, bounds) {
     for (let i = 0; i < n; i++) {
@@ -55,6 +58,9 @@ export class Crowd {
       a.fig.position.z += vz;
       a.fig.rotation.y = Math.atan2(dx, dz);
       animateWalk(a.fig, t + a.phase, a.speed);
+      animateIdle(a.fig, t);
     }
+    for (const f of this.seated) animateIdle(f, t);
+    for (const f of this.idle) animateIdle(f, t);
   }
 }

@@ -72,9 +72,10 @@ export function makeMinifig({ kind = 'patient', ailment = null, skin = '#f1c27d'
 
   // ----- cara con detalle (mira hacia +z) -----
   const eyeW = mat('#ffffff'), eyeD = mat('#26303f');
+  const eyeWhites = [];
   function eye(x) {
     const w = new THREE.Mesh(new THREE.SphereGeometry(0.055, 12, 10), eyeW);
-    w.scale.set(1, 1.2, 0.6); w.position.set(x, hipY + 1.16, 0.205); g.add(w);
+    w.scale.set(1, 1.2, 0.6); w.position.set(x, hipY + 1.16, 0.205); g.add(w); eyeWhites.push(w);
     const p = new THREE.Mesh(new THREE.SphereGeometry(0.028, 8, 8), eyeD);
     p.position.set(x, hipY + 1.15, 0.245); g.add(p);
     const brow = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.024, 0.025), mat(palette.hair));
@@ -118,11 +119,24 @@ export function makeMinifig({ kind = 'patient', ailment = null, skin = '#f1c27d'
   }
 
   g.userData.legs = [lLeg, rLeg];
+  g.userData.torso = torso;
+  g.userData.eyes = eyeWhites;
+  g.userData.phase = Math.random() * 10;
   g.scale.setScalar(ailment === 'pediatrico' ? 0.6 : 0.82); // altura ~1.5–1.8 m
   return g;
 }
 
 export function layDown(fig) { fig.rotation.x = -Math.PI / 2; fig.position.y += 0.5; }
+
+// Respiración (escala sutil del torso) + parpadeo periódico.
+export function animateIdle(fig, t) {
+  const u = fig.userData; const ph = u.phase || 0;
+  if (u.torso) u.torso.scale.y = 1 + Math.sin(t * 1.6 + ph) * 0.035;
+  if (u.eyes) {
+    const blink = ((t * 0.55 + ph) % 3.2) > 3.05 ? 0.12 : 1.2;
+    u.eyes.forEach((e) => { e.scale.y = blink; });
+  }
+}
 export function sit(fig) { (fig.userData.legs || []).forEach((l) => { l.rotation.x = -Math.PI / 2; }); }
 export function animateWalk(fig, t, speed = 1) {
   const legs = fig.userData.legs || [];
