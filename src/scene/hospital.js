@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mat, brick, wall, emissivePanel, floorTexture } from './lego.js';
-import { makeMinifig, layDown } from './minifig.js';
+import { makeMinifig, layOnBed } from './minifig.js';
 import { makeDevice } from './devices.js';
 import { Crowd } from './crowd.js';
 import { crashCart, ivPole, screen, stool, chair, cabinet, surgicalLight, instrumentTray, plant, toyBox, slidingDoor, gurney, wallMonitor } from './props.js';
@@ -53,30 +53,40 @@ export function buildHospital(scene, cases) {
     if (cur < end) addWall(cur, z, end, z, CH, color);
   }
 
-  // ---------- piso + techo ----------
-  const fW = 31, fD = 56, fz = -21.5;
+  // ---------- piso (incluye explanada exterior) + techo (solo interior) ----------
+  const fW = 31, fD = 66, fz = -16.5;
   const ftex = floorTexture(); ftex.repeat.set(fW / 2.2, fD / 2.2);
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(fW, fD),
     new THREE.MeshStandardMaterial({ map: ftex, roughness: 0.95 }));
   floor.rotation.x = -Math.PI / 2; floor.position.set(0, 0, fz); floor.receiveShadow = true;
   scene.add(floor);
+  const ceil = new THREE.Mesh(new THREE.PlaneGeometry(31, 56), mat('#f4f7fc'));
+  ceil.rotation.x = Math.PI / 2; ceil.position.set(0, CH, -21.5); scene.add(ceil);
 
-  const ceil = new THREE.Mesh(new THREE.PlaneGeometry(fW, fD), mat('#f4f7fc'));
-  ceil.rotation.x = Math.PI / 2; ceil.position.set(0, CH, fz); scene.add(ceil);
-
-  // ---------- letrero de entrada ----------
-  scene.add(label('🏥 Hospital Virtual UNAM', 0, 3.4, 5.7, 5, 1.25));
+  // ---------- FACHADA + explanada de entrada ----------
+  addHWall(6, -11, 11, [{ c: 0, w: 6 }], '#cdd9ef');     // muro de fachada con entrada central
+  // dintel sobre la entrada
+  const elintel = brick(6.4, 1.0, WT, '#0a2e6e'); elintel.position.set(0, CH - 0.5, 6); scene.add(elintel);
+  // parapeto + cruz roja + letrero (lado exterior)
+  const parapet = brick(22, 1.4, 0.6, '#ffffff'); parapet.position.set(0, CH + 0.7, 6.1); scene.add(parapet);
+  const crossMat = new THREE.MeshStandardMaterial({ color: '#e63946', emissive: '#e63946', emissiveIntensity: 0.4 });
+  const cv = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.7, 0.2), crossMat); cv.position.set(-7.5, CH + 0.7, 6.45);
+  const chz = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.5, 0.2), crossMat); chz.position.set(-7.5, CH + 0.7, 6.45);
+  scene.add(cv, chz);
+  scene.add(label('🏥 HOSPITAL VIRTUAL UNAM', 1.2, CH + 0.7, 6.5, 9, 1.1));
+  // explanada: jardineras, escalón y bancas
+  const step = brick(8, 0.18, 1.2, '#b8c6e0'); step.position.set(0, 0.09, 6.9); scene.add(step);
+  [[-9.5, 13], [9.5, 13], [-9.5, 8.5], [9.5, 8.5]].forEach(([x, z]) => { const p = plant(); p.position.set(x, 0, z); scene.add(p); });
+  // muros perimetrales de la explanada (para no salirse)
+  addVWall(-11, 6, 15, [], '#cdd9ef'); addVWall(11, 6, 15, [], '#cdd9ef'); addHWall(15, -11, 11, [], '#cdd9ef');
 
   // ---------- lobby ----------
-  addHWall(6, -8, 8, [], '#dde6f4');                 // fondo lobby
   addVWall(-8, -4, 6); addVWall(8, -4, 6);           // lados lobby
   addHWall(-4, -8, 8, [{ c: 0, w: 6 }]);             // frente lobby (entrada al pasillo)
-  // recepción
   const desk = brick(4, 1.1, 1.2, '#2b3a67'); desk.position.set(0, 0.55, 3.6); scene.add(desk);
-  scene.add(label('Recepción', 0, 1.9, 3.6, 2.2, 0.55));
-  // plantas y sillas del lobby
-  [[-7, 4.8], [7, 4.8], [-7, -3], [7, -3]].forEach(([x, z]) => { const p = plant(); p.position.set(x, 0, z); scene.add(p); });
-  [[-3, -2.6], [3, -2.6]].forEach(([x, z]) => { const c = chair(); c.position.set(x, 0, z); c.rotation.y = x < 0 ? 0.5 : -0.5; scene.add(c); });
+  scene.add(label('Recepción', 0, 1.85, 3.6, 1.8, 0.45));
+  [[-7, 4.6], [7, 4.6], [-7, -3], [7, -3]].forEach(([x, z]) => { const p = plant(); p.position.set(x, 0, z); scene.add(p); });
+  [[-5.5, -2.6], [5.5, -2.6]].forEach(([x, z]) => { const c = chair(); c.position.set(x, 0, z); c.rotation.y = x < 0 ? 0.5 : -0.5; scene.add(c); });
 
   // ---------- pasillo (muros con puertas) ----------
   const leftDoors = Object.values(ROOM_SLOTS).filter(s => s.side === 'left').map(s => ({ c: s.cz, w: DOOR_W }));
@@ -138,9 +148,15 @@ export function buildHospital(scene, cases) {
     const ail = caseObj.patient?.ailment;
     const patient = makeMinifig({ kind: 'patient', ailment: ail });
     if (ail === 'paro' || ail === 'quirurgico' || ail === 'sangrado') {
-      patient.position.set(bedX, 0.7, cz); layDown(patient); patient.rotation.z = left ? Math.PI / 2 : -Math.PI / 2;
+      // acostado boca arriba a lo largo de la cama (eje X), cabeza hacia la almohada
+      patient.position.set(bedX, 0.95, cz);
+      layOnBed(patient, !left ? false : true);
+      patient.rotation.z = left ? Math.PI / 2 : -Math.PI / 2;
+      // cobija sobre las piernas
+      const blanket = brick(1.5, 0.14, 1.05, ail === 'quirurgico' ? '#7fc1e8' : '#9fb0d8');
+      blanket.position.set(bedX + (left ? -0.45 : 0.45), 0.98, cz); scene.add(blanket);
     } else {
-      patient.position.set(cx, 0, cz + 2.5); patient.rotation.y = left ? Math.PI / 2 : -Math.PI / 2;
+      patient.position.set(cx, 0, cz + 2.4); patient.rotation.y = left ? Math.PI / 2 : -Math.PI / 2;
     }
     scene.add(patient); idleFigs.push(patient);
 
@@ -203,8 +219,8 @@ export function buildHospital(scene, cases) {
 
   return {
     interactables, walls, doors,
-    footprint: { x0: -15.4, x1: 15.4, z0: -49.4, z1: 6.4 },
-    crowd, spawn: { x: 0, y: 1.65, z: 4 }
+    footprint: { x0: -15.4, x1: 15.4, z0: -49.4, z1: 15.4 },
+    crowd, spawn: { x: 0, y: 1.65, z: 12 }
   };
 }
 

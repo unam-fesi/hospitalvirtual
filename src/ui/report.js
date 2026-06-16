@@ -19,7 +19,7 @@ export function renderReport(bodyEl, report, caseObj, notes, { onRetry, onClose 
       <div class="grade">${report.grade} · ${report.score}/${report.max} pts</div>
       ${comps}
       <div class="ai">
-        <b>Retroalimentación de la IA</b> <span class="badge">Gemini · GPC IMSS</span><br><br>
+        <b>Retroalimentación de la IA</b> <span class="badge">PUM-AI · GPC IMSS</span><br><br>
         ${report.strong.length ? `<b>Fortalezas:</b> ${report.strong.join(', ')}.<br><br>` : ''}
         ${aiNotes}
       </div>

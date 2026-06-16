@@ -1,6 +1,6 @@
 import { supabase } from './supabase.js';
 
-// ---------- Edge Functions (Gemini) ----------
+// ---------- Edge Functions (PUM-AI) ----------
 async function invoke(name, body) {
   const { data, error } = await supabase.functions.invoke(name, { body });
   if (error) throw error;

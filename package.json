@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Hospital Virtual UNAM — simulación clínica 3D estilo LEGO con IA (Gemini) y Supabase",
+  "description": "Hospital Virtual UNAM — simulación clínica 3D con PUM-AI y Supabase",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

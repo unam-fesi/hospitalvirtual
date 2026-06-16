@@ -3,7 +3,7 @@ import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockCont
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { buildHospital } from './hospital.js';
 
-const SPEED = 55;
+const SPEED = 38;
 const RADIUS = 0.42;
 
 export class World {
@@ -57,6 +57,7 @@ export class World {
     });
 
     this.controls = new PointerLockControls(this.camera, renderer.domElement);
+    this.controls.pointerSpeed = 0.7; // mirar más suave
     scene.add(this.controls.getObject());
     this.controls.addEventListener('lock', () => this.onLockChange(true));
     this.controls.addEventListener('unlock', () => this.onLockChange(false));
@@ -115,8 +116,10 @@ export class World {
       const t = this.clock.elapsedTime;
 
       if (!this.paused && this.controls.isLocked) {
-        this.velocity.x -= this.velocity.x * 10 * dt;
-        this.velocity.z -= this.velocity.z * 10 * dt;
+        this.velocity.x -= this.velocity.x * 12 * dt;
+        this.velocity.z -= this.velocity.z * 12 * dt;
+        if (Math.abs(this.velocity.x) < 0.02) this.velocity.x = 0;  // evita deriva
+        if (Math.abs(this.velocity.z) < 0.02) this.velocity.z = 0;
         this.direction.z = Number(this.move.f) - Number(this.move.b);
         this.direction.x = Number(this.move.r) - Number(this.move.l);
         this.direction.normalize();

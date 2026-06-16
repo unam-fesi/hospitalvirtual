@@ -132,7 +132,7 @@ export function openCase(caseObj, profile, { onClose }) {
     showFeedback(o.is_correct ? 'ok' : 'no', (o.is_correct ? '✅ ' : '⚠️ ') + o.feedback);
   }
 
-  // ---------- modo respuesta abierta (egresado) — evalúa Gemini ----------
+  // ---------- modo respuesta abierta (egresado) — evalúa PUM-AI ----------
   function renderOpen(s) {
     const zone = body.querySelector('#answer-zone');
     zone.innerHTML = `

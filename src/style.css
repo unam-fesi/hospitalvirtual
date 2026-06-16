@@ -145,21 +145,28 @@ label{font-size:12px;color:var(--muted);display:block;margin:10px 0 4px}
 /* ---- landing ---- */
 .landing{position:fixed;inset:0;z-index:30;display:flex;flex-direction:column;align-items:center;justify-content:center;
   background:radial-gradient(circle at 50% 18%, #eef6ff, #d2e7fb 62%, #bcd9f5);text-align:center;padding:28px;overflow:auto}
-.landing .logos{display:flex;align-items:center;gap:30px;margin-bottom:14px}
-.landing .logos img{height:92px;width:auto;filter:drop-shadow(0 6px 16px rgba(0,40,90,.22))}
-.landing h1{margin:8px 0 2px;font-size:40px;color:#0a2e6e;letter-spacing:.5px;font-weight:900}
+.landing .logos{display:flex;align-items:center;gap:42px;margin-bottom:10px}
+.landing .logos img{width:auto;filter:drop-shadow(0 8px 20px rgba(0,40,90,.22))}
+.landing .logo-unam{height:130px}
+.landing .logo-fesi{height:200px}
+.landing h1{margin:6px 0 2px;font-size:42px;color:#0a2e6e;letter-spacing:.5px;font-weight:900}
 .landing h1 .gold{color:#c9a227}
-.landing .tagline{color:#c9a227;font-weight:800;letter-spacing:2px;font-size:13px;text-transform:uppercase;margin-bottom:10px}
-.landing .lead{color:#103a72;max-width:730px;font-size:16px;line-height:1.65;margin:8px 0}
-.landing .features{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:780px;margin:16px 0 24px}
-.landing .feat{background:rgba(255,255,255,.78);border:1px solid #9fc2e8;border-radius:999px;padding:9px 16px;
-  color:#0a2e6e;font-size:13px;font-weight:700}
-.landing .enter{background:#0a2e6e;color:#ffd86b;border:none;border-radius:14px;padding:16px 40px;font-size:18px;font-weight:800;
+.landing .tagline{color:#c9a227;font-weight:800;letter-spacing:2px;font-size:13px;text-transform:uppercase;margin-bottom:8px}
+.landing .lead{color:#103a72;max-width:760px;font-size:16px;line-height:1.65;margin:8px 0 6px}
+.landing .featgrid{display:grid;grid-template-columns:repeat(3,minmax(180px,1fr));gap:14px;max-width:840px;margin:20px 0 26px}
+.landing .featcard{background:rgba(255,255,255,.82);border:1px solid #a9c8ec;border-radius:16px;padding:16px 14px;
+  box-shadow:0 8px 22px rgba(10,46,110,.1);transition:.15s}
+.landing .featcard:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(10,46,110,.18)}
+.landing .featcard .ic{font-size:40px;line-height:1;margin-bottom:8px}
+.landing .featcard .ft{color:#0a2e6e;font-weight:800;font-size:15px;margin-bottom:3px}
+.landing .featcard .fd{color:#3a5a86;font-size:12.5px;line-height:1.4}
+.landing .enter{background:#0a2e6e;color:#ffd86b;border:none;border-radius:14px;padding:16px 42px;font-size:18px;font-weight:800;
   cursor:pointer;box-shadow:0 12px 32px rgba(10,46,110,.4);transition:.18s;letter-spacing:.5px}
 .landing .enter:hover{background:#0c3a8a;transform:translateY(-2px)}
 .landing .foot{margin-top:22px;color:#3a5a86;font-size:12px}
 .landing .foot b{color:#0a2e6e}
-@media(max-width:560px){.landing h1{font-size:30px}.landing .logos img{height:64px}}
+@media(max-width:760px){.landing .featgrid{grid-template-columns:repeat(2,1fr)}.landing h1{font-size:32px}
+  .landing .logo-unam{height:90px}.landing .logo-fesi{height:130px}}
 
 .center-menu{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:8;pointer-events:none}
 .menu-card{pointer-events:auto;background:rgba(18,26,50,.92);border:1px solid var(--line);border-radius:16px;
