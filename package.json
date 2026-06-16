@@ -1,0 +1,19 @@
+{
+  "name": "hospital-virtual-unam",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Hospital Virtual UNAM — simulación clínica 3D estilo LEGO con IA (Gemini) y Supabase",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4",
+    "three": "^0.161.0"
+  },
+  "devDependencies": {
+    "vite": "^5.4.8"
+  }
+}
