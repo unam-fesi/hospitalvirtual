@@ -3,7 +3,7 @@ import { mat, brick, wall, emissivePanel, floorTexture } from './lego.js';
 import { makeMinifig, layOnBed } from './minifig.js';
 import { makeDevice } from './devices.js';
 import { Crowd } from './crowd.js';
-import { crashCart, ivPole, screen, stool, chair, cabinet, surgicalLight, instrumentTray, plant, toyBox, slidingDoor, gurney, wallMonitor } from './props.js';
+import { crashCart, ivPole, screen, stool, chair, cabinet, surgicalLight, instrumentTray, plant, toyBox, slidingDoor, gurney, wallMonitor, overBedTable, wasteBin, sink, sanitizer, sharpsBox, wallClock, poster, oxygenHeadwall, anesthesiaMachine } from './props.js';
 
 const CH = 4;     // altura de techo
 const WT = 0.25;  // grosor de muro
@@ -191,6 +191,24 @@ export function buildHospital(scene, cases) {
     }
     if (room === 'consulta') { const ch = chair(color); ch.position.set(cx, 0, cz + 1.6); ch.rotation.y = Math.PI; scene.add(ch); }
     if (room === 'pediatria') { const tb = toyBox(); tb.position.set(cx, 0, cz + 3.2); scene.add(tb); }
+    if (room === 'quirofano') { const am = anesthesiaMachine(); am.position.set(cx + (left ? -2.2 : 2.2), 0, cz + 3); am.rotation.y = left ? -Math.PI / 2 : Math.PI / 2; scene.add(am); }
+
+    // ---------- detalle fijo de la sala ----------
+    const sgn = left ? 1 : -1;            // hacia el interior en X
+    const faceIn = left ? Math.PI / 2 : -Math.PI / 2; // mirar al interior desde pared exterior
+    // cabecero con tomas de O2 detrás de la cama (pared exterior)
+    const head = oxygenHeadwall(); head.position.set(outerX + sgn * 0.12, 0, cz); head.rotation.y = faceIn; scene.add(head);
+    // lavabo en una esquina (pared del fondo z=cz-5)
+    const sk = sink(); sk.position.set(cx - sgn * 3.0, 0, cz - 4.7); scene.add(sk);
+    // dispensador de gel + punzocortantes junto a la puerta (pared del pasillo)
+    const san = sanitizer(); san.position.set(innerX - sgn * 0.1, 1.35, cz + 1.7); san.rotation.y = faceIn; scene.add(san);
+    const shp = sharpsBox(); shp.position.set(innerX - sgn * 0.16, 1.25, cz - 1.7); shp.rotation.y = faceIn; scene.add(shp);
+    // póster y reloj en la pared del fondo (z=cz-5), mirando al interior (+z)
+    const pos = poster(color); pos.position.set(cx + sgn * 2.4, 1.7, cz - 4.9); scene.add(pos);
+    const clk = wallClock(); clk.position.set(cx - sgn * 2.4, 2.7, cz - 4.88); scene.add(clk);
+    // bote de basura y mesa puente junto a la cama
+    const wb = wasteBin(color); wb.position.set(cx - sgn * 2.0, 0, cz + 1.4); scene.add(wb);
+    const obt = overBedTable(); obt.position.set(bedX - sgn * 0.1, 0, cz + 1.0); obt.rotation.y = faceIn; scene.add(obt);
   });
 
   // ---------- multitud ----------

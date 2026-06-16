@@ -12,6 +12,10 @@ export function makeMinifig({ kind = 'patient', ailment = null, skin = '#f1c27d'
   }[kind] || { suit: '#aab6d6', accent: '#7a88b4', hair: '#4a3526' };
   if (ailment === 'quirurgico') { pal.suit = '#6cc0e8'; pal.accent = '#3f9bd0'; }
   if (ailment === 'paro') skin = '#d7d2c7';
+  if (kind === 'patient') {
+    const hairs = ['#4a3526', '#2a1c14', '#6b4b2a', '#8a8f99', '#3a2a1e', '#1f1a17'];
+    pal.hair = hairs[Math.floor(Math.random() * hairs.length)];
+  }
   const suit = mat(pal.suit), skinM = mat(skin);
   const ball = (r, m) => new THREE.Mesh(new THREE.SphereGeometry(r, 16, 12), m);
   const cyl = (r1, r2, h, m) => new THREE.Mesh(new THREE.CylinderGeometry(r1, r2, h, 16), m);
@@ -60,9 +64,15 @@ export function makeMinifig({ kind = 'patient', ailment = null, skin = '#f1c27d'
   const head = ball(0.22, skinM); head.position.y = hY; head.castShadow = true; g.add(head);
   const eyeW = mat('#ffffff'), eyeD = mat('#26303f');
   const eyeWhites = [];
+  const closed = ailment === 'paro';
   function eye(x) {
-    const w = ball(0.05, eyeW); w.scale.set(1, 1.2, 0.55); w.position.set(x, hY + 0.02, 0.185); g.add(w); eyeWhites.push(w);
-    const p = ball(0.026, eyeD); p.position.set(x, hY + 0.01, 0.215); g.add(p);
+    if (closed) {
+      const lid = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.018, 0.03), eyeD);
+      lid.position.set(x, hY + 0.02, 0.2); g.add(lid);
+    } else {
+      const w = ball(0.05, eyeW); w.scale.set(1, 1.2, 0.55); w.position.set(x, hY + 0.02, 0.185); g.add(w); eyeWhites.push(w);
+      const p = ball(0.026, eyeD); p.position.set(x, hY + 0.01, 0.215); g.add(p);
+    }
     const brow = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.022, 0.025), mat(pal.hair));
     brow.position.set(x, hY + 0.11, 0.185); brow.rotation.z = x < 0 ? 0.1 : -0.1; g.add(brow);
   }
@@ -71,6 +81,16 @@ export function makeMinifig({ kind = 'patient', ailment = null, skin = '#f1c27d'
   const mouth = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.026, 0.02), mat(ailment === 'paro' ? '#8b97a6' : '#b5675f'));
   mouth.position.set(0, hY - 0.11, 0.2); g.add(mouth);
   [-0.215, 0.215].forEach((x) => { const e = ball(0.045, skinM); e.scale.set(0.6, 1, 1); e.position.set(x, hY, 0); g.add(e); });
+
+  // oxígeno: mascarilla (paro) o cánula nasal (encamados)
+  if (ailment === 'paro') {
+    const mask = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 10, 0, Math.PI * 2, 0, Math.PI / 2),
+      new THREE.MeshStandardMaterial({ color: '#cfeafc', transparent: true, opacity: 0.55, roughness: 0.2 }));
+    mask.rotation.x = Math.PI / 2; mask.position.set(0, hY - 0.07, 0.16); g.add(mask);
+    const tube = cyl(0.015, 0.015, 0.45, mat('#e3eaf5')); tube.position.set(0.12, hY - 0.25, 0.14); tube.rotation.z = 0.7; g.add(tube);
+  } else if (ailment === 'sangrado' || ailment === 'quirurgico' || ailment === 'pediatrico') {
+    const cn = new THREE.Mesh(new THREE.TorusGeometry(0.05, 0.012, 6, 16), mat('#eef3fb')); cn.position.set(0, hY - 0.04, 0.2); g.add(cn);
+  }
 
   // cabello / gorro
   const hair = new THREE.Mesh(new THREE.SphereGeometry(0.235, 16, 12, 0, Math.PI * 2, 0, Math.PI / 1.7), mat(pal.hair));

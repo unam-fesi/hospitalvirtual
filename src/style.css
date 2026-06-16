@@ -145,28 +145,36 @@ label{font-size:12px;color:var(--muted);display:block;margin:10px 0 4px}
 /* ---- landing ---- */
 .landing{position:fixed;inset:0;z-index:30;display:flex;flex-direction:column;align-items:center;justify-content:center;
   background:radial-gradient(circle at 50% 18%, #eef6ff, #d2e7fb 62%, #bcd9f5);text-align:center;padding:28px;overflow:auto}
-.landing .logos{display:flex;align-items:center;gap:42px;margin-bottom:10px}
+.landing .logos{display:flex;flex-direction:column;align-items:center;gap:4px;margin-bottom:6px}
 .landing .logos img{width:auto;filter:drop-shadow(0 8px 20px rgba(0,40,90,.22))}
-.landing .logo-unam{height:130px}
-.landing .logo-fesi{height:200px}
+.landing .logo-fesi{height:240px}
+.landing .logo-unam{height:120px}
 .landing h1{margin:6px 0 2px;font-size:42px;color:#0a2e6e;letter-spacing:.5px;font-weight:900}
 .landing h1 .gold{color:#c9a227}
 .landing .tagline{color:#c9a227;font-weight:800;letter-spacing:2px;font-size:13px;text-transform:uppercase;margin-bottom:8px}
-.landing .lead{color:#103a72;max-width:760px;font-size:16px;line-height:1.65;margin:8px 0 6px}
-.landing .featgrid{display:grid;grid-template-columns:repeat(3,minmax(180px,1fr));gap:14px;max-width:840px;margin:20px 0 26px}
-.landing .featcard{background:rgba(255,255,255,.82);border:1px solid #a9c8ec;border-radius:16px;padding:16px 14px;
-  box-shadow:0 8px 22px rgba(10,46,110,.1);transition:.15s}
-.landing .featcard:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(10,46,110,.18)}
-.landing .featcard .ic{font-size:40px;line-height:1;margin-bottom:8px}
-.landing .featcard .ft{color:#0a2e6e;font-weight:800;font-size:15px;margin-bottom:3px}
-.landing .featcard .fd{color:#3a5a86;font-size:12.5px;line-height:1.4}
+.landing .lead{color:#103a72;max-width:760px;font-size:16px;line-height:1.65;margin:8px 0 4px}
+.landing .hintflip{color:#5a78a0;font-size:12.5px;margin:2px 0 14px}
+.landing .featgrid{display:grid;grid-template-columns:repeat(3,minmax(190px,1fr));gap:16px;max-width:860px;margin:6px 0 26px}
+.landing .featcard{background:transparent;border:none;padding:0;height:160px;cursor:pointer;perspective:1000px}
+.landing .fc-inner{position:relative;width:100%;height:100%;transition:transform .55s;transform-style:preserve-3d}
+.landing .featcard.flipped .fc-inner{transform:rotateY(180deg)}
+.landing .fc-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:16px;padding:16px 14px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.landing .fc-front{background:rgba(255,255,255,.85);border:1px solid #a9c8ec;box-shadow:0 8px 22px rgba(10,46,110,.12)}
+.landing .fc-front .ic{font-size:46px;line-height:1;margin-bottom:8px}
+.landing .fc-front .ft{color:#0a2e6e;font-weight:800;font-size:16px;margin-bottom:4px}
+.landing .fc-front .fd{color:#3a5a86;font-size:12px;line-height:1.35}
+.landing .fc-back{background:#0a2e6e;border:1px solid #0a2e6e;color:#eaf2ff;transform:rotateY(180deg);
+  box-shadow:0 8px 22px rgba(10,46,110,.3)}
+.landing .fc-back .ft{color:#ffd86b;font-weight:800;font-size:15px;margin-bottom:7px}
+.landing .fc-back .fd{font-size:12.5px;line-height:1.5}
 .landing .enter{background:#0a2e6e;color:#ffd86b;border:none;border-radius:14px;padding:16px 42px;font-size:18px;font-weight:800;
   cursor:pointer;box-shadow:0 12px 32px rgba(10,46,110,.4);transition:.18s;letter-spacing:.5px}
 .landing .enter:hover{background:#0c3a8a;transform:translateY(-2px)}
 .landing .foot{margin-top:22px;color:#3a5a86;font-size:12px}
 .landing .foot b{color:#0a2e6e}
 @media(max-width:760px){.landing .featgrid{grid-template-columns:repeat(2,1fr)}.landing h1{font-size:32px}
-  .landing .logo-unam{height:90px}.landing .logo-fesi{height:130px}}
+  .landing .logo-fesi{height:150px}.landing .logo-unam{height:80px}}
 
 .center-menu{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:8;pointer-events:none}
 .menu-card{pointer-events:auto;background:rgba(18,26,50,.92);border:1px solid var(--line);border-radius:16px;
