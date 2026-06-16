@@ -145,13 +145,28 @@ export function buildHospital(scene, cases) {
     // ===== AULA DE APRENDIZAJE (pizarrón-wizard PUM-AI) =====
     if (special === 'aula') {
       const sgn = left ? 1 : -1;
-      // pizarrón en la pared del fondo (z = cz-5)
-      const boardFrame = brick(4.4, 2.0, 0.12, '#7a5230'); boardFrame.position.set(cx, 2.1, cz - 4.86); scene.add(boardFrame);
-      const board = new THREE.Mesh(new THREE.PlaneGeometry(4.1, 1.7),
-        new THREE.MeshStandardMaterial({ color: '#16332a', roughness: 0.9 }));
-      board.position.set(cx, 2.1, cz - 4.79); scene.add(board);
-      scene.add(label('📋 Encuesta PUM-AI', cx, 2.55, cz - 4.78, 3, 0.6));
-      scene.add(label('Acércate y presiona E', cx, 1.75, cz - 4.78, 2.6, 0.46));
+      // pizarrón con texto de gis escrito en la superficie (pared del fondo z = cz-5)
+      const bframe = brick(4.8, 2.1, 0.12, '#5a3d23'); bframe.position.set(cx, 2.05, cz - 4.94); scene.add(bframe);
+      const bc = document.createElement('canvas'); bc.width = 1024; bc.height = 440;
+      const bx = bc.getContext('2d');
+      bx.fillStyle = '#16332a'; bx.fillRect(0, 0, 1024, 440);
+      bx.strokeStyle = 'rgba(255,255,255,0.05)'; bx.lineWidth = 8;
+      for (let s = 0; s < 7; s++) { bx.beginPath(); bx.moveTo(Math.random() * 1024, Math.random() * 440); bx.lineTo(Math.random() * 1024, Math.random() * 440); bx.stroke(); }
+      bx.fillStyle = '#f3efe4'; bx.textAlign = 'center'; bx.font = 'bold 66px Georgia, serif';
+      bx.fillText('Aula de Aprendizaje', 512, 86);
+      bx.font = '36px Georgia, serif'; bx.fillStyle = '#dfe9c9';
+      bx.fillText('Encuesta guiada por PUM-AI', 512, 142);
+      bx.textAlign = 'left'; bx.font = '34px Georgia, serif'; bx.fillStyle = '#f3efe4';
+      ['• ¿Cómo viste el Hospital Virtual?', '• ¿Qué contenido necesitas para tu formación?', '• PUM-AI te sugiere servicios del Ecosistema Digital']
+        .forEach((l, k) => bx.fillText(l, 110, 216 + k * 52));
+      bx.textAlign = 'center'; bx.font = 'italic 32px Georgia, serif'; bx.fillStyle = '#bfe3ff';
+      bx.fillText('Acércate y presiona  E', 512, 410);
+      const btex = new THREE.CanvasTexture(bc);
+      const board = new THREE.Mesh(new THREE.PlaneGeometry(4.5, 1.92),
+        new THREE.MeshStandardMaterial({ map: btex, roughness: 0.95, emissive: '#0d1f18', emissiveIntensity: 0.2 }));
+      board.position.set(cx, 2.05, cz - 4.87); scene.add(board);
+      // canaleta para gises
+      const tray = brick(4.5, 0.08, 0.18, '#6b4a2c'); tray.position.set(cx, 1.08, cz - 4.82); scene.add(tray);
       // escritorio del docente
       const tdesk = brick(2.0, 0.8, 0.8, '#2b3a67'); tdesk.position.set(cx, 0.4, cz - 3.4); scene.add(tdesk);
       // pupitres con sillas mirando al pizarrón
