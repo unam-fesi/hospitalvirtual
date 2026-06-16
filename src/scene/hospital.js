@@ -135,7 +135,7 @@ export function buildHospital(scene, cases) {
 
     // dintel + letrero sobre la puerta
     const lintel = brick(WT, 1.4, DOOR_W, color); lintel.position.set(innerX, CH - 0.7, cz); scene.add(lintel);
-    const spr = label(title, innerX + (left ? 0.9 : -0.9), 3.5, cz, 3, 0.7);
+    const spr = label(title, innerX + (left ? 1.1 : -1.1), 3.5, cz, 3.8, 0.72);
     scene.add(spr);
 
     // puerta corredera automática (se abre al acercarse)
@@ -290,13 +290,21 @@ export function buildHospital(scene, cases) {
   };
 }
 
-// Letrero tipo cartel (sprite) limpio y proporcionado.
+// Letrero tipo cartel (sprite). El lienzo conserva la proporción del sprite (w/h)
+// y la fuente se ajusta para que el texto NUNCA se corte.
 function label(text, x, y, z, w = 3, h = 0.7) {
-  const c = document.createElement('canvas'); c.width = 512; c.height = 128;
+  const W = 640, H = Math.max(96, Math.round(W * h / w));
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
   const g = c.getContext('2d');
-  g.fillStyle = 'rgba(255,255,255,0.96)'; round(g, 8, 8, 496, 112, 26); g.fill();
-  g.fillStyle = '#13203f'; g.font = 'bold 56px -apple-system,Segoe UI,sans-serif';
-  g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, 256, 66);
+  const pad = Math.round(H * 0.12);
+  g.fillStyle = 'rgba(255,255,255,0.96)';
+  round(g, pad / 2, pad / 2, W - pad, H - pad, Math.min(H * 0.28, 30)); g.fill();
+  const fontFam = '-apple-system,Segoe UI,Roboto,sans-serif';
+  let fs = Math.round(H * 0.46);
+  g.font = `bold ${fs}px ${fontFam}`;
+  while (g.measureText(text).width > W - pad * 2.4 && fs > 12) { fs -= 2; g.font = `bold ${fs}px ${fontFam}`; }
+  g.fillStyle = '#13203f'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText(text, W / 2, H / 2 + 1);
   const t = new THREE.CanvasTexture(c);
   const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true }));
   s.scale.set(w, h, 1); s.position.set(x, y, z);
