@@ -35,10 +35,6 @@ export function showLogin(onSuccess) {
           <button id="submit" class="btn" style="width:100%;margin-top:12px">Ingresar</button>
         </div>
       </details>
-      <p class="muted" style="margin-top:12px;font-size:11px">
-        El modo demo usa acceso anónimo de Supabase. Si está deshabilitado, usa correo
-        (ver README para activar "Anonymous sign-ins" o desactivar "Confirm email").
-      </p>
     </div>`;
 
   ui.appendChild(scrim);
