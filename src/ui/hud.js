@@ -34,8 +34,9 @@ export function mountHud(profile, { onEditor, onLogout, onPublishSeed, onEnterHo
   menu.innerHTML = `
     <div class="menu-card">
       <h1>Recorre el hospital 🏥</h1>
-      <p>Haz click para entrar en primera persona. Camina por el pasillo y entra a las 5 salas
-         (Urgencias, Reanimación, Consulta, Quirófano, Pediatría). Acércate a un paciente y presiona <b>E</b> para atender el caso.</p>
+      <p>Haz click para entrar en primera persona. Camina por el pasillo y entra a las salas
+         (Urgencias, Reanimación, Consulta, Quirófano, Pediatría y el <b>Aula de Aprendizaje</b>).
+         Acércate a un paciente y presiona <b>E</b> para atender el caso, o al pizarrón del Aula para la encuesta.</p>
       <button class="btn primary" id="menu-enter">Entrar al hospital</button>
     </div>`;
   ui.appendChild(menu);

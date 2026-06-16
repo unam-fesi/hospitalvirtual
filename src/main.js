@@ -6,6 +6,7 @@ import { showLogin } from './ui/login.js';
 import { mountHud } from './ui/hud.js';
 import { openCase } from './ui/casePanel.js';
 import { openEditor } from './ui/editor.js';
+import { openWizard } from './ui/wizard.js';
 import { showLanding } from './ui/landing.js';
 import { toast } from './ui/toast.js';
 
@@ -30,14 +31,21 @@ async function startApp(profile) {
 
   world = new World(document.getElementById('scene'), {
     onEnterCase: (slug) => {
+      const resume = () => { world.setPaused(false); hud.setLocked(false); hud.showMenu(); };
+      if (slug === '__aula__') {
+        world.setPaused(true);
+        openWizard(profile, { onClose: resume });
+        return;
+      }
       const c = cases.find((x) => x.slug === slug);
       if (!c) return;
       world.setPaused(true);
-      openCase(c, profile, {
-        onClose: () => { world.setPaused(false); hud.setLocked(false); hud.showMenu(); }
-      });
+      openCase(c, profile, { onClose: resume });
     },
-    onProximity: (slug) => hud.setPrompt(slug ? 'Presiona <b>E</b> para atender al paciente' : ''),
+    onProximity: (slug) => hud.setPrompt(
+      !slug ? '' : slug === '__aula__'
+        ? 'Presiona <b>E</b> para abrir la encuesta del Aula'
+        : 'Presiona <b>E</b> para atender al paciente'),
     onLockChange: (locked) => hud.setLocked(locked)
   });
 

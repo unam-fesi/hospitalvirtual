@@ -129,6 +129,17 @@ label{font-size:12px;color:var(--muted);display:block;margin:10px 0 4px}
   padding:12px 14px;margin-top:14px;font-size:13.5px;line-height:1.55}
 .ai b{color:var(--accent)}
 
+/* tarjetas de servicios del ecosistema (sugerencias PUM-AI) */
+.ecolist{display:flex;flex-direction:column;gap:10px;margin:14px 0}
+.ecocard{display:flex;align-items:center;gap:12px;background:#0e1730;border:1px solid var(--line);
+  border-radius:12px;padding:12px;text-decoration:none;color:var(--ink);transition:.15s}
+.ecocard:hover{border-color:var(--accent);transform:translateY(-1px)}
+.ecocard .eic{font-size:28px;flex:none}
+.ecocard .enm{font-weight:700;font-size:14px}
+.ecocard .ekind{font-size:10px;color:var(--accent);border:1px solid var(--accent);border-radius:20px;padding:1px 7px;margin-left:6px}
+.ecocard .eds{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.4}
+.ecocard .earrow{margin-left:auto;color:var(--accent);font-size:18px;flex:none}
+
 /* editor */
 .editor .row{display:flex;gap:10px}
 .editor .row > *{flex:1}

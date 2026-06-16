@@ -14,7 +14,8 @@ const ROOM_SLOTS = {
   reanimacion: { side: 'right', cz: -18 },
   consulta:    { side: 'left',  cz: -28 },
   quirofano:   { side: 'right', cz: -36 },
-  pediatria:   { side: 'left',  cz: -44 }
+  pediatria:   { side: 'left',  cz: -44 },
+  aula:        { side: 'right', cz: -44, special: 'aula' }
 };
 const DOOR_W = 3;
 
@@ -104,14 +105,16 @@ export function buildHospital(scene, cases) {
   cases.forEach((c) => { if (!byRoom[c.room]) byRoom[c.room] = c; });
 
   Object.entries(ROOM_SLOTS).forEach(([room, slot]) => {
-    const caseObj = byRoom[room] || cases.find((c) => c.room === room);
-    if (!caseObj) return;
+    const special = slot.special;
+    const caseObj = special ? null : (byRoom[room] || cases.find((c) => c.room === room));
+    if (!special && !caseObj) return;
     const left = slot.side === 'left';
     const innerX = left ? -3 : 3;     // borde con el pasillo
     const outerX = left ? -15 : 15;   // pared exterior
     const cx = (innerX + outerX) / 2; // centro de la sala
     const cz = slot.cz;
-    const color = caseObj.color || '#37c2ff';
+    const color = special ? '#c9a227' : (caseObj.color || '#37c2ff');
+    const title = special ? '📚 Aula de Aprendizaje' : `${caseObj.icon || ''} ${caseObj.section}`;
 
     // muros de la sala (3 lados; el del pasillo ya tiene la puerta)
     addVWall(outerX, cz - 5, cz + 5, [], '#eef2fa');
@@ -132,12 +135,42 @@ export function buildHospital(scene, cases) {
 
     // dintel + letrero sobre la puerta
     const lintel = brick(WT, 1.4, DOOR_W, color); lintel.position.set(innerX, CH - 0.7, cz); scene.add(lintel);
-    const spr = label(`${caseObj.icon || ''} ${caseObj.section}`, innerX + (left ? 0.9 : -0.9), 3.5, cz, 3, 0.7);
+    const spr = label(title, innerX + (left ? 0.9 : -0.9), 3.5, cz, 3, 0.7);
     scene.add(spr);
 
     // puerta corredera automática (se abre al acercarse)
     const door = slidingDoor(innerX, cz);
     scene.add(door.group); doors.push(door);
+
+    // ===== AULA DE APRENDIZAJE (pizarrón-wizard PUM-AI) =====
+    if (special === 'aula') {
+      const sgn = left ? 1 : -1;
+      // pizarrón en la pared del fondo (z = cz-5)
+      const boardFrame = brick(4.4, 2.0, 0.12, '#7a5230'); boardFrame.position.set(cx, 2.1, cz - 4.86); scene.add(boardFrame);
+      const board = new THREE.Mesh(new THREE.PlaneGeometry(4.1, 1.7),
+        new THREE.MeshStandardMaterial({ color: '#16332a', roughness: 0.9 }));
+      board.position.set(cx, 2.1, cz - 4.79); scene.add(board);
+      scene.add(label('📋 Encuesta PUM-AI', cx, 2.55, cz - 4.78, 3, 0.6));
+      scene.add(label('Acércate y presiona E', cx, 1.75, cz - 4.78, 2.6, 0.46));
+      // escritorio del docente
+      const tdesk = brick(2.0, 0.8, 0.8, '#2b3a67'); tdesk.position.set(cx, 0.4, cz - 3.4); scene.add(tdesk);
+      // pupitres con sillas mirando al pizarrón
+      for (let r = 0; r < 2; r++) for (let c = -1; c <= 1; c++) {
+        const dx = cx + c * 2.0, dz = cz - 0.5 + r * 2.2;
+        const d = brick(1.1, 0.06, 0.6, '#cfd8e8'); d.position.set(dx, 0.75, dz); scene.add(d);
+        const legs = brick(1.0, 0.7, 0.5, '#aab6cc'); legs.position.set(dx, 0.37, dz); scene.add(legs);
+        const ch = chair('#5566a8'); ch.position.set(dx, 0, dz + 0.7); ch.rotation.y = Math.PI; scene.add(ch);
+      }
+      // detalle: reloj y dispensador
+      const clk = wallClock(); clk.position.set(cx + sgn * 1.6, 3.1, cz - 4.84); scene.add(clk);
+      const san = sanitizer(); san.position.set(innerX - sgn * 0.1, 1.35, cz + 1.7); san.rotation.y = left ? Math.PI / 2 : -Math.PI / 2; scene.add(san);
+      // pad de interacción frente al pizarrón
+      const apad = new THREE.Mesh(new THREE.CircleGeometry(1.1, 28),
+        new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.5 }));
+      apad.rotation.x = -Math.PI / 2; apad.position.set(cx, 0.05, cz - 2.2); scene.add(apad);
+      interactables.push({ slug: '__aula__', position: new THREE.Vector3(cx, 1, cz - 2.2), pad: apad });
+      return;
+    }
 
     // cama contra la pared exterior
     const bedX = cx + (left ? -1.6 : 1.6);
