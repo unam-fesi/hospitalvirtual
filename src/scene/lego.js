@@ -1,57 +1,44 @@
 import * as THREE from 'three';
 
-export const STUD = 0.34;
 const matCache = new Map();
-export function mat(color) {
-  if (!matCache.has(color)) matCache.set(color, new THREE.MeshLambertMaterial({ color }));
-  return matCache.get(color);
+// Materiales PBR suaves (mejor con iluminación de ambiente / IBL).
+export function mat(color, { rough = 0.85, metal = 0.0 } = {}) {
+  const key = color + rough + metal;
+  if (!matCache.has(key)) matCache.set(key, new THREE.MeshStandardMaterial({ color, roughness: rough, metalness: metal }));
+  return matCache.get(key);
 }
 
-// Ladrillo LEGO con studs en la cara superior.
-export function brick(w, h, d, color, { studs = true, studDensity = 1 } = {}) {
-  const g = new THREE.Group();
-  const m = mat(color);
-  const body = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m);
-  body.castShadow = true; body.receiveShadow = true;
-  g.add(body);
-  if (studs) {
-    const sx = Math.max(1, Math.round((w / 1.0) * studDensity));
-    const sz = Math.max(1, Math.round((d / 1.0) * studDensity));
-    const sg = new THREE.CylinderGeometry(STUD / 2, STUD / 2, 0.18, 10);
-    const im = new THREE.InstancedMesh(sg, m, sx * sz);
-    let i = 0; const mtx = new THREE.Matrix4();
-    for (let a = 0; a < sx; a++) for (let b = 0; b < sz; b++) {
-      const px = -w / 2 + (a + 0.5) * (w / sx);
-      const pz = -d / 2 + (b + 0.5) * (d / sz);
-      mtx.makeTranslation(px, h / 2 + 0.09, pz);
-      im.setMatrixAt(i++, mtx);
-    }
-    im.castShadow = true;
-    g.add(im);
-  }
-  return g;
-}
-
-// Placa base verde con studs (instanciados).
-export function basePlate(size, color = '#3a7d44') {
-  const g = new THREE.Group();
-  const plate = new THREE.Mesh(new THREE.BoxGeometry(size, 1, size), mat(color));
-  plate.position.y = -0.5; plate.receiveShadow = true; g.add(plate);
-  const n = Math.min(40, Math.round(size / 2));
-  const sg = new THREE.CylinderGeometry(STUD / 2, STUD / 2, 0.16, 8);
-  const im = new THREE.InstancedMesh(sg, mat(color), n * n);
-  let i = 0; const mtx = new THREE.Matrix4();
-  for (let a = 0; a < n; a++) for (let b = 0; b < n; b++) {
-    mtx.makeTranslation(-size / 2 + (a + 0.5) * (size / n), 0.08, -size / 2 + (b + 0.5) * (size / n));
-    im.setMatrixAt(i++, mtx);
-  }
-  im.receiveShadow = true; g.add(im);
-  return g;
-}
-
-// Pared simple tipo ladrillo (sin studs por rendimiento).
-export function wall(w, h, d, color = '#dfe6f2') {
-  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(color));
+// Caja lisa (sin studs) para mobiliario y estructura.
+export function brick(w, h, d, color, opts = {}) {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(color, opts));
   m.castShadow = true; m.receiveShadow = true;
+  return m;
+}
+export function wall(w, h, d, color = '#eef2fa') { return brick(w, h, d, color); }
+
+// Panel emisivo para luminarias de techo / pantallas.
+export function emissivePanel(w, d, color = '#ffffff', intensity = 1.1) {
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, d),
+    new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: intensity, roughness: 1 }));
+  m.rotation.x = Math.PI / 2;
+  return m;
+}
+
+// Textura de piso tipo loseta de hospital.
+export function floorTexture(color1 = '#dfe6f1', color2 = '#cfd8e8') {
+  const c = document.createElement('canvas'); c.width = c.height = 128;
+  const x = c.getContext('2d');
+  x.fillStyle = color1; x.fillRect(0, 0, 128, 128);
+  x.fillStyle = color2; x.fillRect(0, 0, 64, 64); x.fillRect(64, 64, 64, 64);
+  x.strokeStyle = 'rgba(120,140,170,0.35)'; x.lineWidth = 3; x.strokeRect(0, 0, 128, 128);
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  return t;
+}
+
+// (conservado por compatibilidad; el hospital nuevo usa losas planas)
+export function basePlate(size, color = '#3a7d44') {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(size, 1, size), mat(color));
+  m.position.y = -0.5; m.receiveShadow = true;
   return m;
 }

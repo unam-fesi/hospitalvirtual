@@ -1,7 +1,8 @@
 # 🏥 Hospital Virtual UNAM — Simulación clínica 3D
 
 MVP de simulación clínica para las carreras de la salud de la UNAM. El alumno **recorre un
-hospital estilo LEGO en primera persona**, entra a una sala, atiende un **caso clínico real
+hospital 3D (estilo bloques/voxel, personajes estilizados propios) en primera persona**,
+entra a una sala, atiende un **caso clínico real
 basado en las Guías de Práctica Clínica (GPC) del IMSS**, y una **IA (Gemini)** evalúa,
 corrige y complementa su desempeño. Soporta **voz** (el paciente habla y el alumno responde)
 y **roles de usuario** que cambian la dificultad.
@@ -13,13 +14,14 @@ y **roles de usuario** que cambian la dificultad.
 
 ## ✨ Funcionalidades
 
-- **Recorrido 3D (walkthrough)** en primera persona por un hospital LEGO: pasillo, sala de
-  espera con pacientes sentados, y **doctores/enfermeras caminando** aleatoriamente.
+- **Recorrido 3D (walkthrough)** en primera persona por un edificio de hospital (lobby,
+  pasillo y salas cerradas con puertas), con sala de espera, pacientes sentados y
+  **doctores/enfermeras caminando** aleatoriamente.
 - **5 salas con 5 casos** (GPC IMSS): Urgencias (acuchillado), Reanimación (paro/RCP),
   Consulta (dolor torácico/IAMCEST), Quirófano (cirugía segura OMS) y Pediatría (anafilaxia).
-- **Minifiguras según su dolencia** (sangrado, palidez del paro, mano al pecho, bata
-  quirúrgica, ronchas pediátricas).
-- **Aparatos de medición LEGO** (monitor de signos vitales, ECG, eco/FAST, báscula,
+- **Personajes estilizados según su dolencia** (sangrado, palidez del paro, mano al pecho,
+  bata quirúrgica, ronchas pediátricas).
+- **Aparatos de medición 3D** (monitor de signos vitales, ECG, eco/FAST, báscula,
   expediente) cuyos **valores se consideran** en el diagnóstico/triage.
 - **Roles**: primeros semestres (opciones sencillas) · últimos semestres (opciones técnicas) ·
   **egresado/internado (respuesta abierta evaluada semánticamente por Gemini)**.
