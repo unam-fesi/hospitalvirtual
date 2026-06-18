@@ -18,6 +18,11 @@ export class World {
     this.direction = new THREE.Vector3();
     this.clock = new THREE.Clock();
     this.currentTarget = null;
+    // soporte táctil (iPad / móvil): controles en pantalla en vez de pointer lock
+    this.isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+    this.started = false;        // para táctil: recorrido iniciado
+    this.yaw = 0; this.pitch = 0; // orientación de cámara en modo táctil
+    this.joy = { x: 0, y: 0 };    // vector del joystick (-1..1, y hacia abajo positivo)
     this._initRenderer();
   }
 
@@ -56,6 +61,7 @@ export class World {
       const p = new THREE.PointLight('#fff1d6', 22, 18, 2); p.position.set(0, 3.4, z); scene.add(p);
     });
 
+    this.camera.rotation.order = 'YXZ'; // para orientar la cámara en modo táctil
     this.controls = new PointerLockControls(this.camera, renderer.domElement);
     this.controls.pointerSpeed = 0.7; // mirar más suave
     scene.add(this.controls.getObject());
@@ -97,8 +103,22 @@ export class World {
     this._loop();
   }
 
-  lock() { try { this.controls.lock(); } catch (e) {} }
-  setPaused(p) { this.paused = p; if (p && this.controls.isLocked) this.controls.unlock(); }
+  lock() {
+    if (this.isTouch) { this.started = true; this.onLockChange(true); }
+    else { try { this.controls.lock(); } catch (e) {} }
+  }
+  setPaused(p) {
+    this.paused = p;
+    if (this.isTouch) { if (p) { this.started = false; this.onLockChange(false); } }
+    else if (p && this.controls.isLocked) this.controls.unlock();
+  }
+  // ---- API para controles táctiles (Roblox-style) ----
+  setJoystick(x, y) { this.joy.x = x; this.joy.y = y; }
+  lookDelta(dx, dy) {
+    this.yaw -= dx * 0.005; this.pitch -= dy * 0.005;
+    this.pitch = Math.max(-1.4, Math.min(1.4, this.pitch));
+  }
+  interact() { if (this.currentTarget && !this.paused) this.onEnterCase(this.currentTarget); }
 
   _collides(x, z) {
     const f = this.footprint;
@@ -115,16 +135,20 @@ export class World {
       const dt = Math.min(0.05, this.clock.getDelta());
       const t = this.clock.elapsedTime;
 
-      if (!this.paused && this.controls.isLocked) {
+      const active = this.isTouch ? (this.started && !this.paused) : (this.controls.isLocked && !this.paused);
+      if (active) {
+        if (this.isTouch) this.camera.rotation.set(this.pitch, this.yaw, 0); // orienta la cámara
         this.velocity.x -= this.velocity.x * 12 * dt;
         this.velocity.z -= this.velocity.z * 12 * dt;
         if (Math.abs(this.velocity.x) < 0.02) this.velocity.x = 0;  // evita deriva
         if (Math.abs(this.velocity.z) < 0.02) this.velocity.z = 0;
-        this.direction.z = Number(this.move.f) - Number(this.move.b);
-        this.direction.x = Number(this.move.r) - Number(this.move.l);
-        this.direction.normalize();
-        if (this.move.f || this.move.b) this.velocity.z -= this.direction.z * SPEED * dt;
-        if (this.move.l || this.move.r) this.velocity.x -= this.direction.x * SPEED * dt;
+        let dz, dx;
+        if (this.isTouch) { dz = -this.joy.y; dx = this.joy.x; }
+        else { dz = Number(this.move.f) - Number(this.move.b); dx = Number(this.move.r) - Number(this.move.l); }
+        this.direction.set(dx, 0, dz);
+        if (this.direction.lengthSq() > 1) this.direction.normalize();
+        this.velocity.z -= this.direction.z * SPEED * dt;
+        this.velocity.x -= this.direction.x * SPEED * dt;
 
         const obj = this.controls.getObject();
         const px = obj.position.x, pz = obj.position.z;

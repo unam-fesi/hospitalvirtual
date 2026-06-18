@@ -1,7 +1,7 @@
 import { ROLES } from '../config.js';
 
 // Barra superior + indicaciones de caminata + prompt de interacción.
-export function mountHud(profile, { onEditor, onLogout, onPublishSeed, onEnterHospital }) {
+export function mountHud(profile, { onEditor, onLogout, onPublishSeed, onEnterHospital, isTouch = false }) {
   const ui = document.getElementById('ui');
   const role = profile?.role || 'principiante';
   const canManage = role === 'docente' || role === 'admin';
@@ -25,18 +25,22 @@ export function mountHud(profile, { onEditor, onLogout, onPublishSeed, onEnterHo
   // crosshair + indicaciones
   const cross = document.createElement('div'); cross.className = 'crosshair'; ui.appendChild(cross);
   const hint = document.createElement('div'); hint.className = 'walkhint';
-  hint.innerHTML = '<b>Click</b> para mirar · <b>WASD</b> para caminar · acércate a una sala y presiona <b>E</b>';
+  hint.innerHTML = isTouch
+    ? '🕹️ <b>Joystick</b> para caminar · <b>arrastra</b> para mirar · botón <b>E</b> para interactuar'
+    : '<b>Click</b> para mirar · <b>WASD</b> para caminar · acércate a una sala y presiona <b>E</b>';
   ui.appendChild(hint);
   const tip = document.createElement('div'); tip.className = 'prompttip'; ui.appendChild(tip);
 
   // menú central (cuando no está bloqueado el puntero)
   const menu = document.createElement('div'); menu.className = 'center-menu';
+  const howto = isTouch
+    ? 'Usa el <b>joystick</b> (abajo a la izquierda) para caminar, <b>arrastra</b> con el dedo para mirar y el botón <b>E</b> (abajo a la derecha) para interactuar.'
+    : 'Haz click para entrar en primera persona y usa <b>WASD</b> para caminar. Acércate y presiona <b>E</b> para interactuar.';
   menu.innerHTML = `
     <div class="menu-card">
       <h1>Recorre el hospital 🏥</h1>
-      <p>Haz click para entrar en primera persona. Camina por el pasillo y entra a las salas
-         (Urgencias, Reanimación, Consulta, Quirófano, Pediatría y el <b>Aula de Aprendizaje</b>).
-         Acércate a un paciente y presiona <b>E</b> para atender el caso, o al pizarrón del Aula para la encuesta.</p>
+      <p>Entra a las salas (Urgencias, Reanimación, Consulta, Quirófano, Pediatría y el
+         <b>Aula de Aprendizaje</b>). ${howto}</p>
       <button class="btn primary" id="menu-enter">Entrar al hospital</button>
     </div>`;
   ui.appendChild(menu);

@@ -8,6 +8,7 @@ import { openCase } from './ui/casePanel.js';
 import { openEditor } from './ui/editor.js';
 import { openWizard } from './ui/wizard.js';
 import { showLanding } from './ui/landing.js';
+import { createTouchControls } from './ui/touch.js';
 import { toast } from './ui/toast.js';
 
 let world = null;
@@ -26,7 +27,7 @@ async function startApp(profile) {
   const ui = document.getElementById('ui');
   ui.innerHTML = ''; // limpia login
 
-  let hud;
+  let hud, touchUI = null;
   const cases = await loadCases();
 
   world = new World(document.getElementById('scene'), {
@@ -42,14 +43,18 @@ async function startApp(profile) {
       world.setPaused(true);
       openCase(c, profile, { onClose: resume });
     },
-    onProximity: (slug) => hud.setPrompt(
-      !slug ? '' : slug === '__aula__'
-        ? 'Presiona <b>E</b> para abrir la encuesta del Aula'
-        : 'Presiona <b>E</b> para atender al paciente'),
-    onLockChange: (locked) => hud.setLocked(locked)
+    onProximity: (slug) => {
+      const verb = world.isTouch ? 'Toca <b>E</b>' : 'Presiona <b>E</b>';
+      hud.setPrompt(!slug ? '' : slug === '__aula__'
+        ? `${verb} para abrir la encuesta del Aula`
+        : `${verb} para atender al paciente`);
+      if (touchUI) touchUI.setActionActive(!!slug);
+    },
+    onLockChange: (locked) => { hud.setLocked(locked); if (touchUI) touchUI.setVisible(locked); }
   });
 
   hud = mountHud(profile, {
+    isTouch: world.isTouch,
     onEnterHospital: () => world.lock(),
     onEditor: () => openEditor(profile, { onClose: () => {}, onPublished: () => {} }),
     onLogout: async () => { await signOut(); location.reload(); },
@@ -59,6 +64,7 @@ async function startApp(profile) {
     }
   });
 
+  if (world.isTouch) touchUI = createTouchControls(world);
   world.build(cases);
   hud.setLocked(false);
 }
